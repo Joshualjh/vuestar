@@ -8,11 +8,13 @@
       <span class="profile-name">{{ dataItems.name }}</span>
     </div>
     <div
+      @click="$store.commit('좋아요', 1)"
       class="post-body"
+      :class="dataItems.filter"
       :style="{ backgroundImage: `url(${dataItems.postImage})` }"
     ></div>
     <div class="post-content">
-      <p>{{ dataItems.likes }} Likes</p>
+      <p>{{ $store.state.likes }} Likes</p>
       <p>
         <strong>{{ dataItems.name }}</strong> {{ dataItems.content }}
       </p>

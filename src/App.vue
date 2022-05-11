@@ -4,30 +4,103 @@
       <li>Cancel</li>
     </ul>
     <ul class="header-button-right">
-      <li>Next</li>
+      <li v-if="step == 1" @click="step++">Next</li>
+      <li v-if="step == 2" @click="publish">저장</li>
     </ul>
     <img src="./assets/logo.png" class="logo" />
   </div>
-  <ContainerItems :dataItems="dataItems" />
+  <p>{{ $store.state.more }}</p>
+  <button @click="$store.dispatch('getData')">더보기</button>
+
+  <h4>안녕 {{ $store.state.name }}</h4>
+  <button @click="$store.commit('이름변경')">버튼</button>
+  <h4>나이 {{ $store.state.age }}</h4>
+  <button @click="$store.commit('나이변경')">버튼</button>
+  <p>{{ now2 }} {{ 카운터 }}</p>
+  <button @click="카운터++">버튼</button>
+
+  <ContainerItems
+    @write="작성한글 = $event"
+    :이미지="이미지"
+    :dataItems="dataItems"
+    :step="step"
+    :필터적용="필터적용"
+  />
+  <button @click="more">더보기</button>
 
   <div class="footer">
     <ul class="footer-button-plus">
-      <input type="file" id="file" class="inputfile" />
+      <input @change="upload" type="file" id="file" class="inputfile" />
       <label for="file" class="input-plus">+</label>
     </ul>
   </div>
 </template>
 
+
+
 <script>
 import ContainerItems from "./components/ContainerItems.vue";
 import dataItems from "./assets/dataItems.js";
+import axios from "axios";
 
 export default {
   name: "AppItem",
   data() {
     return {
       dataItems,
+      count: 0,
+      step: 0,
+      이미지: "",
+      작성한글: "",
+      필터적용: "",
+      카운터: 0,
     };
+  },
+  mounted() {
+    this.emitter.on("필터", (a) => {
+      this.필터적용 = a;
+    });
+  },
+  computed: {
+    now2() {
+      return new Date();
+    },
+  },
+
+  methods: {
+    // now() {
+    //   return new Date();
+    // },
+
+    publish() {
+      var 내게시물 = {
+        name: "Kim Hyun",
+        userImage: "https://placeimg.com/100/100/arch",
+        postImage: this.이미지,
+        likes: 36,
+        date: "May 15",
+        liked: false,
+        content: this.작성한글,
+        filter: this.필터적용,
+      };
+      this.dataItems.unshift(내게시물);
+      this.step = 0;
+    },
+    more() {
+      axios
+        .get(`https://codingapple1.github.io/vue/more${this.count}.json`)
+        .then((결과) => {
+          console.log(결과.data);
+          this.dataItems.push(결과.data);
+          this.count++;
+        });
+    },
+    upload(e) {
+      let a = e.target.files;
+      let v = URL.createObjectURL(a[0]);
+      this.이미지 = v;
+      this.step++;
+    },
   },
   components: {
     ContainerItems,
