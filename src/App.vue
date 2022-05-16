@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <ul class="header-button-left">
-      <li>Cancel</li>
+      <li @click="step = 0">Cancel</li>
     </ul>
     <ul class="header-button-right">
       <li v-if="step == 1" @click="step++">Next</li>
@@ -9,15 +9,15 @@
     </ul>
     <img src="./assets/logo.png" class="logo" />
   </div>
-  <p>{{ $store.state.more }}</p>
-  <button @click="$store.dispatch('getData')">더보기</button>
+  <!-- <p>{{ $store.state.more }}</p>
+  <button @click="$store.dispatch('getData')">더보기</button> -->
 
-  <h4>안녕 {{ $store.state.name }}</h4>
+  <!-- <h4>안녕 {{ $store.state.name }}</h4>
   <button @click="$store.commit('이름변경')">버튼</button>
   <h4>나이 {{ $store.state.age }}</h4>
   <button @click="$store.commit('나이변경')">버튼</button>
   <p>{{ now2 }} {{ 카운터 }}</p>
-  <button @click="카운터++">버튼</button>
+  <button @click="카운터++">버튼</button> -->
 
   <ContainerItems
     @write="작성한글 = $event"
@@ -45,6 +45,7 @@ import axios from "axios";
 
 export default {
   name: "AppItem",
+
   data() {
     return {
       dataItems,
@@ -54,8 +55,10 @@ export default {
       작성한글: "",
       필터적용: "",
       카운터: 0,
+      datacount: 0,
     };
   },
+
   mounted() {
     this.emitter.on("필터", (a) => {
       this.필터적용 = a;
@@ -83,17 +86,46 @@ export default {
         content: this.작성한글,
         filter: this.필터적용,
       };
+
+      axios
+        .post("/api/post", JSON.stringify(내게시물), {
+          headers: {
+            "Content-Type": `application/json`,
+          },
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch(function (error) {
+          alert(error);
+        });
       this.dataItems.unshift(내게시물);
       this.step = 0;
     },
     more() {
       axios
-        .get(`https://codingapple1.github.io/vue/more${this.count}.json`)
-        .then((결과) => {
-          console.log(결과.data);
-          this.dataItems.push(결과.data);
-          this.count++;
+        .get("/api/account")
+        .then((res) => {
+          console.log(res);
+          this.dataItems.push(res.data[this.datacount]);
+          this.step = 0;
+          this.datacount++;
+        })
+        .catch(function (error) {
+          alert(error);
         });
+      // .get(`https://codingapple1.github.io/vue/more${this.count}.json`)
+      // .then((결과) => {
+      //   console.log(결과.data);
+      //   this.dataItems.push(결과.data);
+      //   this.count++;
+      //   return new Promise(() => {
+      //     axios.post("http://localhost:3000/");
+      //     axios
+      //       .get("http://localhost:3000/")
+      //       .then((데이터) => console.log(데이터));
+      //   });
+      // });
     },
     upload(e) {
       let a = e.target.files;

@@ -33,7 +33,7 @@ write!</textarea
       >
     </div>
   </div>
-</template>y
+</template>
 
 <script>
 import PostItem from "./PostItems.vue";
